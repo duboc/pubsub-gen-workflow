@@ -4,7 +4,7 @@ from google.cloud import aiplatform
 import json
 import time
 from datetime import datetime
-from vertexai.language_models import TextGenerationModel
+from vertexai.generative_models import GenerationConfig, GenerativeModel
 import vertexai
 
 # Initialize Streamlit session state
@@ -52,26 +52,28 @@ def receive_message(project_id, subscription_id):
     return None
 
 def process_with_vertex(project_id, location, message):
-    """Processes message with Vertex AI Flash-002"""
+    """Processes message with Gemini 1.5 Flash"""
     # Initialize Vertex AI
     vertexai.init(project=project_id, location=location)
     
-    # Load Flash model
-    model = TextGenerationModel.from_pretrained("text-bison@002")
+    # Load Gemini model
+    model = GenerativeModel("gemini-1.5-flash-002")
     
     # Generate response
-    response = model.predict(
+    response = model.generate_content(
         message,
-        temperature=0.7,
-        max_output_tokens=256,
-        top_p=0.8,
-        top_k=40
+        generation_config=GenerationConfig(
+            temperature=0.7,
+            max_output_tokens=256,
+            top_p=0.8,
+            top_k=40
+        )
     )
     
     return response.text
 
 def main():
-    st.title("PubSub Simulator with Vertex AI Flash-002")
+    st.title("PubSub Simulator with Gemini 1.5 Flash")
     
     # Configuration section
     st.sidebar.header("Configuration")
